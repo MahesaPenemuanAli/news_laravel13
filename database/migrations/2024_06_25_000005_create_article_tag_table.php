@@ -17,6 +17,8 @@ return new class extends Migration
                   ->constrained('tags')
                   ->cascadeOnDelete();
 
+            $table->timestamps();
+
             // Composite Primary Key (mencegah duplikasi tag pada artikel yang sama)
             $table->primary(['article_id', 'tag_id']);
         });
