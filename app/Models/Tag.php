@@ -11,5 +11,9 @@ class Tag extends Model
 
     protected $fillable = ['name', 'slug'];
 
-    public function articles() { return $this->belongsToMany(Article::class, 'article_tag'); }
+    // Tag dimiliki oleh banyak artikel (Many-to-Many via tabel article_tag)
+    public function articles() {
+        return $this->belongsToMany(Article::class, 'article_tag')
+                    ->withTimestamps();
+    }
 }

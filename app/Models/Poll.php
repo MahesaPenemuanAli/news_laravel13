@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,7 +11,9 @@ class Poll extends Model
     protected $fillable = ['question', 'is_active', 'expires_at'];
     protected $casts = ['is_active' => 'boolean', 'expires_at' => 'datetime'];
 
-    public function options() { return $this->hasMany(PollOption::class); }
+    public function options() { 
+        return $this->hasMany(PollOption::class); 
+    }
     
     public function scopeActive($query) {
         return $query->where('is_active', true)

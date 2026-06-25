@@ -30,15 +30,31 @@ class User extends Authenticatable
         ];
     }
 
+    // --- RELASI USER ---
+    
+    // Seorang user bisa menjadi penulis banyak artikel
     public function articles() {
         return $this->hasMany(Article::class, 'author_id');
     }
 
+    // Seorang user memiliki satu profil penulis (Author Profile)
     public function profile() {
         return $this->hasOne(AuthorProfile::class);
     }
-    
+
+    // Seorang user bisa membuat banyak komentar
     public function comments() {
         return $this->hasMany(Comment::class);
+    }
+
+    // Seorang user bisa melakukan voting di banyak polling
+    public function pollVotes() {
+        return $this->hasMany(PollVote::class);
+    }
+
+    // Seorang user bisa mem-bookmark banyak artikel (Many-to-Many)
+    public function bookmarkedArticles() {
+        return $this->belongsToMany(Article::class, 'article_bookmarks')
+                    ->withTimestamps();
     }
 }

@@ -26,41 +26,91 @@ class Article extends Model implements HasMedia
         'is_premium' => 'boolean',
     ];
 
-    // --- RELASI ---
-    public function author() { return $this->belongsTo(User::class, 'author_id'); }
-    public function category() { return $this->belongsTo(Category::class); }
-    public function tags() { return $this->belongsToMany(Tag::class, 'article_tag'); }
-    public function comments() { return $this->hasMany(Comment::class); }
-    public function updates() { return $this->hasMany(ArticleUpdate::class)->latest(); }
-    public function views() { return $this->hasMany(ArticleView::class); }
+    public function author() 
+    { 
+        return $this->belongsTo(User::class, 'author_id'); 
+    }
 
-    // --- SCOPES (Filter Query Bawaan) ---
-    public function scopePublished($query) {
+    public function category() 
+    { 
+        return $this->belongsTo(Category::class); 
+    }
+
+    public function tags() 
+    { 
+        return $this->belongsToMany(Tag::class, 'article_tag')->withTimestamps(); 
+    }
+
+    public function comments() 
+    { 
+        return $this->hasMany(Comment::class); 
+    }
+
+    public function approvedComments() 
+    { 
+        return $this->hasMany(Comment::class)->where('is_approved', true)->whereNull('parent_id'); 
+    }
+
+    public function updates() 
+    { 
+        return $this->hasMany(ArticleUpdate::class)->latest(); 
+    }
+
+    public function views() 
+    { 
+        return $this->hasMany(ArticleView::class); 
+    }
+
+    public function bookmarkedBy() 
+    { 
+        return $this->belongsToMany(User::class, 'article_bookmarks')->withTimestamps(); 
+    }
+
+    public function scopePublished($query) 
+    {
         return $query->where('status', 'published')
                      ->whereNotNull('published_at')
                      ->where('published_at', '<=', now());
     }
 
-    public function scopeBreaking($query) {
+    public function scopeDraft($query) 
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function scopeArchived($query) 
+    {
+        return $query->where('status', 'archived');
+    }
+
+    public function scopeBreaking($query) 
+    {
         return $query->where('is_breaking_news', true);
     }
 
-    public function scopeFeatured($query) {
+    public function scopeFeatured($query) 
+    {
         return $query->where('is_featured', true);
     }
 
-    // --- SPATIE MEDIALIBRARY (Konversi Gambar Otomatis) ---
+    public function scopePremium($query) 
+    {
+        return $query->where('is_premium', true);
+    }
+
+    public function scopeLatestPublished($query) 
+    {
+        return $query->orderBy('published_at', 'desc');
+    }
+
+    public function scopePopular($query) 
+    {
+        return $query->orderBy('views_count', 'desc');
+    }
+
     public function registerMediaConversions(Media $media = null): void
     {
-        // Thumbnail kecil untuk card berita (Format WebP agar ringan)
-        $this->addMediaConversion('thumb')
-              ->width(400)
-              ->height(300)
-              ->format('webp');
-
-        // Gambar ukuran penuh untuk di dalam artikel
-        $this->addMediaConversion('webp-full')
-              ->width(1200)
-              ->format('webp');
+        $this->addMediaConversion('thumb')->width(400)->height(300)->format('webp');
+        $this->addMediaConversion('webp-full')->width(1200)->format('webp');
     }
 }
