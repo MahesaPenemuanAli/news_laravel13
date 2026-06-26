@@ -16,12 +16,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Buat Role
+        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+        $reporterRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'reporter', 'guard_name' => 'web']);
+
         $admin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'admin@news.com',
+            'password' => bcrypt('admin123'),
         ]);
+        $admin->assignRole($adminRole);
 
         $reporters = User::factory()->count(3)->create();
+        foreach ($reporters as $reporter) {
+            $reporter->assignRole($reporterRole);
+        }
 
         $categoryNames = ['Nasional', 'Internasional', 'Bisnis', 'Teknologi', 'Olahraga', 'Hiburan'];
         $categories = collect($categoryNames)->map(function ($name) {
