@@ -1,33 +1,188 @@
 <x-app-layout>
-    <!-- Hero Section Placeholder -->
-    <div class="relative bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
-        <div class="max-w-7xl mx-auto">
-            <div class="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 transition-colors duration-300">
-                <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                    <div class="sm:text-center lg:text-left">
-                        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-                            <span class="block xl:inline">Berita terkini,</span>
-                            <span class="block text-blue-600 dark:text-blue-400">cepat dan akurat</span>
-                        </h1>
-                        <p class="mt-3 text-base text-gray-500 dark:text-gray-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                            Dapatkan informasi terbaru dari seluruh penjuru dunia. Portal Berita menyajikan berita terhangat dengan ulasan mendalam dan berimbang.
-                        </p>
-                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                            <div class="rounded-md shadow">
-                                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 md:py-4 md:text-lg md:px-10 transition-colors">
-                                    Baca Berita Terbaru
-                                </a>
-                            </div>
-                        </div>
+    @section('title', 'Beranda - Portal Berita Terkini')
+    @section('meta_description', 'Portal berita terpercaya dan tercepat. Dapatkan informasi terkini dari berbagai kategori: nasional, internasional, bisnis, teknologi, olahraga, dan hiburan.')
+
+    <!-- Breaking News Ticker -->
+    @if($breakingNews->isNotEmpty())
+    <div class="bg-red-600 text-white overflow-hidden relative shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-10">
+            <div class="font-bold uppercase tracking-wider text-xs md:text-sm whitespace-nowrap pr-4 border-r border-red-500 mr-4 z-10 bg-red-600 flex items-center h-full">
+                <span class="animate-pulse mr-2 w-2 h-2 bg-white rounded-full inline-block"></span> Breaking
+            </div>
+            
+            <div class="flex-1 overflow-hidden ticker-wrap">
+                <div class="whitespace-nowrap flex space-x-8 items-center ticker-content">
+                    @foreach($breakingNews as $news)
+                        <a href="{{ route('article.show', $news->slug ?? '#') }}" class="text-sm hover:underline hover:text-red-100 transition-colors inline-block">
+                            {{ $news->title }}
+                        </a>
+                        <span class="text-red-300">•</span>
+                    @endforeach
+                    {{-- Duplikasi agar loop seamless --}}
+                    @foreach($breakingNews as $news)
+                        <a href="{{ route('article.show', $news->slug ?? '#') }}" class="text-sm hover:underline hover:text-red-100 transition-colors inline-block">
+                            {{ $news->title }}
+                        </a>
+                        <span class="text-red-300">•</span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Ad Banner -->
+        <x-ad-banner position="header" />
+
+        <!-- Hero Section + Trending News Sidebar -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Hero (Main + Side Articles) spans 2 columns -->
+            <div class="lg:col-span-2">
+                @if($featuredArticles->isNotEmpty())
+                    <x-hero-section :articles="$featuredArticles" />
+                @endif
+            </div>
+
+            <!-- Trending News Sidebar -->
+            <div class="lg:col-span-1 flex flex-col">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 h-full">
+                    <h3 class="text-lg font-black text-gray-900 dark:text-white mb-5 uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" />
+                        </svg>
+                        Trending News
+                    </h3>
+                    <div class="space-y-4">
+                        @forelse($trendingArticles as $index => $trending)
+                            <a href="{{ route('article.show', $trending->slug ?? '#') }}" class="flex items-start gap-4 group">
+                                <span class="text-3xl font-black text-gray-200 dark:text-gray-700 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors leading-none min-w-[2rem] text-right">
+                                    {{ $index + 1 }}
+                                </span>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                                        {{ $trending->title }}
+                                    </h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        {{ $trending->published_at ? $trending->published_at->diffForHumans() : $trending->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
+                            </a>
+                            @if(!$loop->last)
+                                <div class="border-b border-gray-100 dark:border-gray-700"></div>
+                            @endif
+                        @empty
+                            <p class="text-sm text-gray-500">Belum ada artikel trending.</p>
+                        @endforelse
                     </div>
-                </main>
+                </div>
             </div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-100 dark:bg-gray-800">
-            <!-- Image placeholder -->
-            <div class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center text-gray-400 dark:text-gray-600">
-                [Featured Image Area]
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight border-l-4 border-blue-600 pl-3">
+                        Berita Terbaru
+                    </h2>
+                    <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">Lihat Semua &rarr;</a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @forelse($latestArticles as $article)
+                        <x-article-card :article="$article" />
+                    @empty
+                        <div class="col-span-2 py-10 text-center text-gray-500 dark:text-gray-400">
+                            Belum ada artikel terbaru.
+                        </div>
+                    @endforelse
+                </div>
+                
+                <!-- In Content Ad Banner -->
+                <x-ad-banner position="in_content" />
+            </div>
+            
+            <!-- Sidebar Area -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Sidebar Ad Banner -->
+                <x-ad-banner position="sidebar" />
+
+                <!-- Jajak Pendapat / Poll Widget -->
+                @if($activePoll)
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Jajak Pendapat
+                    </h3>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 text-center">{{ $activePoll->question }}</p>
+                    <form class="space-y-3" x-data="{ selected: null }">
+                        @foreach($activePoll->options as $option)
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-colors" :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/30': selected === {{ $option->id }} }">
+                                <input type="radio" name="poll_option" value="{{ $option->id }}" class="text-blue-600 focus:ring-blue-500" @click="selected = {{ $option->id }}">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $option->option_text }}</span>
+                            </label>
+                        @endforeach
+                        <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm">
+                            Vote
+                        </button>
+                    </form>
+                </div>
+                @endif
+
+                <!-- Tag Populer Widget -->
+                @if($popularTags->isNotEmpty())
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-center">Tag Populer</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($popularTags as $tag)
+                            <a href="#" class="inline-block bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                {{ $tag->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <!-- Newsletter Widget -->
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-lg p-6 text-white">
+                    <h3 class="text-lg font-bold mb-2 text-center">📬 Newsletter</h3>
+                    <p class="text-sm text-blue-100 text-center mb-4">Berlangganan untuk info terkini langsung ke inbox Anda.</p>
+                    <form class="flex flex-col gap-3">
+                        <input type="email" placeholder="Email Anda" class="rounded-lg border-white/20 bg-white/10 text-white placeholder-blue-200 text-sm focus:ring-white focus:border-white backdrop-blur-sm">
+                        <button type="submit" class="w-full bg-white hover:bg-blue-50 text-blue-700 font-bold py-2.5 px-4 rounded-lg transition-colors text-sm">
+                            Daftar Sekarang
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+
+        <!-- Featured Categories Blocks -->
+        @if($featuredCategories->isNotEmpty())
+            <div class="space-y-12 mb-12">
+                @foreach($featuredCategories as $category)
+                    @if($category->articles->isNotEmpty())
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight border-l-4 border-red-600 pl-3">
+                                {{ $category->name }}
+                            </h2>
+                            <a href="{{ route('category.show', $category->slug ?? '#') }}" class="text-sm font-semibold text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">Lebih banyak &rarr;</a>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            @foreach($category->articles as $article)
+                                <x-article-card :article="$article" />
+                            @endforeach
+                        </div>
+                    </section>
+                    @endif
+                @endforeach
+            </div>
+        @endif
     </div>
 </x-app-layout>

@@ -13,10 +13,13 @@ class Category extends Model implements HasMedia
 
     protected $fillable = [
         'parent_id', 'name', 'slug', 'description', 
-        'icon_class', 'order', 'is_active'
+        'icon_class', 'order', 'is_active', 'is_featured'
     ];
 
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+    ];
 
     // Kategori ini adalah anak dari kategori lain (jika parent_id ada)
     public function parent() {

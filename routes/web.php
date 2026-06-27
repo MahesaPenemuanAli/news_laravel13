@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AuthorController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('category.show');
+Route::get('/article/{slug}', [ArticleController::class, 'show'])->name('article.show');
+Route::get('/author/{id}', [AuthorController::class, 'show'])->name('author.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

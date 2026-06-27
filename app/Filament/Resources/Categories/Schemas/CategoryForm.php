@@ -44,6 +44,10 @@ class CategoryForm
                         \Filament\Forms\Components\Toggle::make('is_active')
                             ->default(true)
                             ->required(),
+                        \Filament\Forms\Components\Toggle::make('is_featured')
+                            ->label('Tampilkan di Beranda')
+                            ->default(false)
+                            ->required(),
                     ])->columns(2),
             ]);
     }
