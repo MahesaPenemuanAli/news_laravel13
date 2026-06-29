@@ -154,7 +154,7 @@
                 <div class="space-y-4">
                     @forelse($trendingArticles as $index => $article)
                         <a href="{{ route('article.show', $article->slug) }}" class="group flex gap-4">
-                            <span class="text-2xl font-black text-blue-400">{{ $index + 1 }}</span>
+                            <span class="text-2xl font-black text-blue-400">{{ $loop->iteration }}</span>
                             <span class="text-sm font-bold leading-snug text-gray-100 group-hover:text-blue-300">
                                 {{ $article->title }}
                             </span>

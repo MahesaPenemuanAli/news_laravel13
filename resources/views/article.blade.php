@@ -1,6 +1,74 @@
 <x-app-layout>
     @section('title', ($article->meta_title ?? $article->title) . ' - Portal Berita')
     @section('meta_description', $article->meta_description ?? $article->excerpt ?? Str::limit(strip_tags($article->content), 160))
+    @section('og_type', 'article')
+    @section('og_image', $article->hasMedia('images') ? $article->getFirstMediaUrl('images', 'webp-full') : asset('images/default-share.png'))
+
+    @section('json_ld')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@graph": [
+            {
+                "@@type": "NewsArticle",
+                "@@id": "{{ request()->url() }}#article",
+                "isPartOf": {
+                    "@@type": "WebPage",
+                    "@@id": "{{ request()->url() }}",
+                    "url": "{{ request()->url() }}",
+                    "name": "{{ e($article->meta_title ?? $article->title) }}"
+                },
+                "headline": "{{ e($article->title) }}",
+                "image": [
+                    "{{ $article->hasMedia('images') ? $article->getFirstMediaUrl('images', 'webp-full') : asset('images/default-share.png') }}"
+                ],
+                "datePublished": "{{ $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String() }}",
+                "dateModified": "{{ $article->updated_at->toIso8601String() }}",
+                "author": {
+                    "@@type": "Person",
+                    "name": "{{ e($article->author->name ?? 'Redaksi') }}",
+                    "url": "{{ route('author.show', $article->author->id) }}"
+                },
+                "publisher": {
+                    "@@type": "Organization",
+                    "name": "{{ e(config('app.name', 'Portal Berita')) }}",
+                    "logo": {
+                        "@@type": "ImageObject",
+                        "url": "{{ asset('images/default-share.png') }}"
+                    }
+                },
+                "description": "{{ e($article->meta_description ?? $article->excerpt ?? Str::limit(strip_tags($article->content), 160)) }}"
+            },
+            {
+                "@@type": "BreadcrumbList",
+                "@@id": "{{ request()->url() }}#breadcrumb",
+                "itemListElement": [
+                    {
+                        "@@type": "ListItem",
+                        "position": 1,
+                        "name": "Beranda",
+                        "item": "{{ route('home') }}"
+                    },
+                    @if($article->category)
+                    {
+                        "@@type": "ListItem",
+                        "position": 2,
+                        "name": "{{ e($article->category->name) }}",
+                        "item": "{{ route('category.show', $article->category->slug) }}"
+                    },
+                    @endif
+                    {
+                        "@@type": "ListItem",
+                        "position": {{ $article->category ? 3 : 2 }},
+                        "name": "{{ e($article->title) }}",
+                        "item": "{{ request()->url() }}"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+    @endsection
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
@@ -195,7 +263,7 @@
                         <div class="space-y-5">
                             @foreach($relatedArticles as $index => $related)
                             <a href="{{ route('article.show', $related->slug) }}" class="flex gap-4 group">
-                                <span class="text-2xl font-black text-gray-200 dark:text-gray-700 group-hover:text-blue-500 transition-colors leading-none min-w-[1.5rem]">{{ $index + 1 }}</span>
+                                <span class="text-2xl font-black text-gray-200 dark:text-gray-700 group-hover:text-blue-500 transition-colors leading-none min-w-[1.5rem]">{{ $loop->iteration }}</span>
                                 <div class="flex-1 flex flex-col justify-center min-w-0">
                                     <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-3">
                                         {{ $related->title }}

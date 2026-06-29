@@ -14,16 +14,12 @@ class ArticleController extends Controller
             ->with(['author.profile', 'category', 'tags', 'media'])
             ->firstOrFail();
 
-        // Increment views
-        $article->increment('views_count');
-
-        // Save detailed view
-        ArticleView::create([
-            'article_id' => $article->id,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'viewed_date' => now()->toDateString(),
-        ]);
+        // Track view asynchronously with spam protection
+        \App\Jobs\TrackArticleView::dispatch(
+            $article->id,
+            request()->ip(),
+            request()->userAgent()
+        );
 
         $relatedArticles = Article::published()
             ->with(['category', 'author', 'media'])

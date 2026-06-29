@@ -173,4 +173,37 @@ class Article extends Model implements HasMedia
             $this->published_at !== null &&
             $this->published_at->isPast();
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($article) {
+            // Invalidate caches
+            \Illuminate\Support\Facades\Cache::forget('navbar_trending_articles');
+            \Illuminate\Support\Facades\Cache::forget('home_trending_articles');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget("category_{$article->category_id}_popular_articles");
+
+            // Generate sitemap
+            try {
+                \App\Services\SitemapGenerator::generate();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to generate sitemap: ' . $e->getMessage());
+            }
+        });
+
+        static::deleted(function ($article) {
+            // Invalidate caches
+            \Illuminate\Support\Facades\Cache::forget('navbar_trending_articles');
+            \Illuminate\Support\Facades\Cache::forget('home_trending_articles');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget("category_{$article->category_id}_popular_articles");
+
+            // Generate sitemap
+            try {
+                \App\Services\SitemapGenerator::generate();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to generate sitemap: ' . $e->getMessage());
+            }
+        });
+    }
 }

@@ -9,14 +9,11 @@ use App\Models\MenuItem;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
 
 class Navbar extends Component
 {
-    public ?Menu $menu = null;
-
-    public Collection $categories;
-
     public array $primaryItems = [];
 
     public array $moreItems = [];
@@ -27,38 +24,61 @@ class Navbar extends Component
 
     public function __construct()
     {
-        $this->menu = Menu::query()
-            ->where('location', 'header')
-            ->with([
-                'items' => fn ($query) => $query
+        $navigationData = Cache::remember('navbar_navigation_data', now()->addHours(24), function () {
+            $menu = Menu::query()
+                ->where('location', 'header')
+                ->with([
+                    'items' => fn ($query) => $query
+                        ->where('is_active', true)
+                        ->with([
+                            'category',
+                            'page',
+                            'children' => fn ($children) => $children
+                                ->where('is_active', true)
+                                ->with(['category', 'page'])
+                                ->orderBy('order'),
+                        ])
+                        ->orderBy('order'),
+                ])
+                ->first();
+
+            if ($menu && $menu->items->isNotEmpty()) {
+                $items = $menu->items
+                    ->map(
+                        fn (MenuItem $item): array => $this->menuItemToNavigation(
+                            $item,
+                        ),
+                    )
+                    ->values();
+            } else {
+                $categories = Category::query()
                     ->where('is_active', true)
+                    ->whereNull('parent_id')
                     ->with([
-                        'category',
-                        'page',
-                        'children' => fn ($children) => $children
+                        'children' => fn ($query) => $query
                             ->where('is_active', true)
-                            ->with(['category', 'page'])
                             ->orderBy('order'),
                     ])
-                    ->orderBy('order'),
-            ])
-            ->first();
+                    ->orderBy('order')
+                    ->get();
 
-        $this->categories = Category::query()
-            ->where('is_active', true)
-            ->whereNull('parent_id')
-            ->with([
-                'children' => fn ($query) => $query
-                    ->where('is_active', true)
-                    ->orderBy('order'),
-            ])
-            ->orderBy('order')
-            ->get();
+                $items = $categories
+                    ->map(
+                        fn (Category $category): array => $this->categoryToNavigation(
+                            $category,
+                        ),
+                    )
+                    ->values();
+            }
 
-        $navigationItems = $this->resolveNavigationItems();
+            return [
+                'primary' => $items->take(7)->values()->all(),
+                'more' => $items->skip(7)->values()->all(),
+            ];
+        });
 
-        $this->primaryItems = $navigationItems->take(7)->values()->all();
-        $this->moreItems = $navigationItems->skip(7)->values()->all();
+        $this->primaryItems = $navigationData['primary'];
+        $this->moreItems = $navigationData['more'];
 
         $this->featuredCategories = Category::query()
             ->where('is_active', true)
@@ -67,33 +87,24 @@ class Navbar extends Component
             ->take(12)
             ->get();
 
-        $this->trendingArticles = Article::query()
-            ->published()
-            ->with('category')
-            ->popular()
-            ->take(4)
-            ->get();
-    }
+        $trendingIds = Cache::remember('navbar_trending_ids', now()->addMinutes(10), function () {
+            return Article::query()
+                ->published()
+                ->popular()
+                ->take(4)
+                ->pluck('id')
+                ->toArray();
+        });
 
-    private function resolveNavigationItems(): Collection
-    {
-        if ($this->menu && $this->menu->items->isNotEmpty()) {
-            return $this->menu->items
-                ->map(
-                    fn (MenuItem $item): array => $this->menuItemToNavigation(
-                        $item,
-                    ),
-                )
-                ->values();
+        $this->trendingArticles = collect();
+        if (!empty($trendingIds)) {
+            $this->trendingArticles = Article::query()
+                ->published()
+                ->with('category')
+                ->whereIn('id', $trendingIds)
+                ->orderByRaw('FIELD(id, ' . implode(',', $trendingIds) . ')')
+                ->get();
         }
-
-        return $this->categories
-            ->map(
-                fn (Category $category): array => $this->categoryToNavigation(
-                    $category,
-                ),
-            )
-            ->values();
     }
 
     private function menuItemToNavigation(MenuItem $item): array

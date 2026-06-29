@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Poll;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
@@ -40,21 +41,35 @@ class CategoryController extends Controller
             ->paginate(9)
             ->withQueryString();
 
-        $popularArticles = Article::query()
-            ->published()
-            ->with(['category', 'author', 'media'])
-            ->where('category_id', $category->id)
-            ->popular()
-            ->take(5)
-            ->get();
+        $popularIds = Cache::remember("category_{$category->id}_popular_ids", now()->addMinutes(10), function () use ($category) {
+            $ids = Article::query()
+                ->published()
+                ->where('category_id', $category->id)
+                ->popular()
+                ->take(5)
+                ->pluck('id')
+                ->toArray();
 
-        if ($popularArticles->isEmpty()) {
+            if (empty($ids)) {
+                $ids = Article::query()
+                    ->published()
+                    ->where('category_id', $category->id)
+                    ->latestPublished()
+                    ->take(5)
+                    ->pluck('id')
+                    ->toArray();
+            }
+
+            return $ids;
+        });
+
+        $popularArticles = collect();
+        if (!empty($popularIds)) {
             $popularArticles = Article::query()
                 ->published()
                 ->with(['category', 'author', 'media'])
-                ->where('category_id', $category->id)
-                ->latestPublished()
-                ->take(5)
+                ->whereIn('id', $popularIds)
+                ->orderByRaw('FIELD(id, ' . implode(',', $popularIds) . ')')
                 ->get();
         }
 

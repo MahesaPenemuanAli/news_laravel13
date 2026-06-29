@@ -2,6 +2,37 @@
     @section('title', $category->name . ' - Portal Berita')
     @section('meta_description', $category->description ?? 'Kumpulan berita ' . $category->name . ' terkini dan terpercaya.')
 
+    @section('json_ld')
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Beranda",
+                "item": "{{ route('home') }}"
+            },
+            @if($category->parent)
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ e($category->parent->name) }}",
+                "item": "{{ route('category.show', $category->parent->slug) }}"
+            },
+            @endif
+            {
+                "@type": "ListItem",
+                "position": {{ $category->parent ? 3 : 2 }},
+                "name": "{{ e($category->name) }}",
+                "item": "{{ request()->url() }}"
+            }
+        ]
+    }
+    </script>
+    @endsection
+
     @php
         $mainArticle = $heroArticles->first();
         $sideArticles = $heroArticles->skip(1)->take(3);
@@ -211,7 +242,7 @@
                             <div class="space-y-5">
                                 @forelse($popularArticles as $index => $article)
                                     <a href="{{ route('article.show', $article->slug) }}" class="group flex gap-4">
-                                        <span class="text-2xl font-black text-gray-200 transition-colors group-hover:text-blue-600 dark:text-gray-700">{{ $index + 1 }}</span>
+                                        <span class="text-2xl font-black text-gray-200 transition-colors group-hover:text-blue-600 dark:text-gray-700">{{ $loop->iteration }}</span>
                                         <span class="text-sm font-bold leading-snug text-gray-800 transition-colors group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
                                             {{ $article->title }}
                                         </span>

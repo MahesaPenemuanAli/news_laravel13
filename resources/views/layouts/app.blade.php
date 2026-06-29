@@ -14,8 +14,19 @@
         <!-- Open Graph Meta -->
         <meta property="og:title" content="@yield('title', config('app.name', 'Portal Berita'))">
         <meta property="og:description" content="@yield('meta_description', 'Portal berita terpercaya dan tercepat.')">
-        <meta property="og:type" content="website">
+        <meta property="og:type" content="@yield('og_type', 'website')">
+        <meta property="og:url" content="{{ request()->url() }}">
+        <meta property="og:image" content="@yield('og_image', asset('images/default-share.png'))">
         <meta property="og:site_name" content="{{ config('app.name', 'Portal Berita') }}">
+
+        <!-- Twitter Card Meta -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="@yield('title', config('app.name', 'Portal Berita'))">
+        <meta name="twitter:description" content="@yield('meta_description', 'Portal berita terpercaya dan tercepat.')">
+        <meta name="twitter:image" content="@yield('og_image', asset('images/default-share.png'))">
+
+        <!-- JSON-LD Schema Markup -->
+        @yield('json_ld')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -35,4 +35,37 @@ class Category extends Model implements HasMedia
     public function articles() {
         return $this->hasMany(Article::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($category) {
+            // Invalidate caches
+            \Illuminate\Support\Facades\Cache::forget('navbar_categories');
+            \Illuminate\Support\Facades\Cache::forget('navbar_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget("category_{$category->id}_popular_articles");
+
+            // Generate sitemap
+            try {
+                \App\Services\SitemapGenerator::generate();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to generate sitemap: ' . $e->getMessage());
+            }
+        });
+
+        static::deleted(function ($category) {
+            // Invalidate caches
+            \Illuminate\Support\Facades\Cache::forget('navbar_categories');
+            \Illuminate\Support\Facades\Cache::forget('navbar_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget('home_featured_categories');
+            \Illuminate\Support\Facades\Cache::forget("category_{$category->id}_popular_articles");
+
+            // Generate sitemap
+            try {
+                \App\Services\SitemapGenerator::generate();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to generate sitemap: ' . $e->getMessage());
+            }
+        });
+    }
 }

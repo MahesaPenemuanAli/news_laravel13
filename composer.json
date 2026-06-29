@@ -15,7 +15,8 @@
         "livewire/livewire": "^4.3",
         "meilisearch/meilisearch-php": "^1.16",
         "spatie/laravel-medialibrary": "^11.23",
-        "spatie/laravel-permission": "^7.4"
+        "spatie/laravel-permission": "^7.4",
+        "spatie/laravel-sitemap": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

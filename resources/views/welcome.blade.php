@@ -58,7 +58,7 @@
                         @forelse($trendingArticles as $index => $trending)
                             <a href="{{ route('article.show', $trending->slug ?? '#') }}" class="flex items-start gap-4 group">
                                 <span class="text-3xl font-black text-gray-200 dark:text-gray-700 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors leading-none min-w-[2rem] text-right">
-                                    {{ $index + 1 }}
+                                    {{ $loop->iteration }}
                                 </span>
                                 <div class="flex-1 min-w-0">
                                     <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
