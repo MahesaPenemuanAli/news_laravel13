@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Set;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class PageForm
 {
@@ -12,16 +16,16 @@ class PageForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Halaman')
+                Section::make('Informasi Halaman')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('title')
+                        TextInput::make('title')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, \Filament\Forms\Set $set) => $operation === 'create' ? $set('slug', \Illuminate\Support\Str::slug($state)) : null),
-                        \Filament\Forms\Components\TextInput::make('slug')
+                            ->afterStateUpdated(fn (string $operation, $state, Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                        TextInput::make('slug')
                             ->required()
                             ->unique(ignoreRecord: true),
-                        \Filament\Forms\Components\Select::make('template')
+                        Select::make('template')
                             ->options([
                                 'default' => 'Default Template',
                                 'full-width' => 'Full Width Template',
@@ -30,12 +34,12 @@ class PageForm
                             ->required()
                             ->default('default'),
                     ])->columns(3),
-                \Filament\Forms\Components\Section::make('Konten')
+                Section::make('Konten')
                     ->schema([
-                        \Filament\Forms\Components\RichEditor::make('content')
+                        RichEditor::make('content')
                             ->required()
                             ->columnSpanFull(),
-                    ])
+                    ]),
             ]);
     }
 }

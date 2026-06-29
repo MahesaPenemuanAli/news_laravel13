@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\Tags\Schemas;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Set;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class TagForm
 {
@@ -11,13 +14,13 @@ class TagForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Tag')
+                Section::make('Informasi Tag')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (\Filament\Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                        \Filament\Forms\Components\TextInput::make('slug')
+                            ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                        TextInput::make('slug')
                             ->required()
                             ->unique(ignoreRecord: true),
                     ])->columns(2),

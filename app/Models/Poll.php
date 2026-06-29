@@ -8,17 +8,23 @@ use Illuminate\Database\Eloquent\Model;
 class Poll extends Model
 {
     use HasFactory;
-    protected $fillable = ['question', 'is_active', 'expires_at'];
-    protected $casts = ['is_active' => 'boolean', 'expires_at' => 'datetime'];
+    protected $fillable = ["question", "is_active", "expires_at"];
+    protected $casts = ["is_active" => "boolean", "expires_at" => "datetime"];
 
-    public function options() { 
-        return $this->hasMany(PollOption::class); 
+    public function options()
+    {
+        return $this->hasMany(PollOption::class);
     }
-    
-    public function scopeActive($query) {
-        return $query->where('is_active', true)
-                     ->where(function($q) {
-                         $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-                     });
+
+    public function votes()
+    {
+        return $this->hasManyThrough(PollVote::class, PollOption::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where("is_active", true)->where(function ($q) {
+            $q->whereNull("expires_at")->orWhere("expires_at", ">", now());
+        });
     }
 }

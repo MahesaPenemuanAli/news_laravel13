@@ -7,6 +7,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class AdForm
@@ -15,12 +16,12 @@ class AdForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Informasi Iklan')
+                Section::make('Informasi Iklan')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->required()
                             ->label('Nama Kampanye Iklan'),
-                        \Filament\Forms\Components\Select::make('position')
+                        Select::make('position')
                             ->options([
                                 'header' => 'Header',
                                 'sidebar' => 'Sidebar',
@@ -28,45 +29,45 @@ class AdForm
                             ])
                             ->required()
                             ->label('Posisi Tayang'),
-                        \Filament\Forms\Components\TextInput::make('target_url')
+                        TextInput::make('target_url')
                             ->url()
                             ->required()
                             ->label('Link Tujuan')
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Banner Image')
+                Section::make('Banner Image')
                     ->schema([
-                        \Filament\Forms\Components\FileUpload::make('image_url')
+                        FileUpload::make('image_url')
                             ->image()
                             ->required()
                             ->label('Gambar Banner')
                             ->columnSpanFull(),
                     ]),
 
-                \Filament\Forms\Components\Section::make('Jadwal Tayang & Status')
+                Section::make('Jadwal Tayang & Status')
                     ->schema([
-                        \Filament\Forms\Components\DatePicker::make('start_date')
+                        DatePicker::make('start_date')
                             ->required()
                             ->label('Tanggal Mulai'),
-                        \Filament\Forms\Components\DatePicker::make('end_date')
+                        DatePicker::make('end_date')
                             ->required()
                             ->label('Tanggal Berakhir'),
-                        \Filament\Forms\Components\Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->required()
                             ->default(true)
                             ->label('Status Aktif')
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Statistik')
+                Section::make('Statistik')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('impressions')
+                        TextInput::make('impressions')
                             ->numeric()
                             ->default(0)
                             ->disabled()
                             ->label('Total Tayangan'),
-                        \Filament\Forms\Components\TextInput::make('clicks')
+                        TextInput::make('clicks')
                             ->numeric()
                             ->default(0)
                             ->disabled()

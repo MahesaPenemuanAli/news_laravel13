@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\ArticleView;
 
@@ -10,9 +9,9 @@ class ArticleController extends Controller
 {
     public function show($slug)
     {
-        $article = Article::where('slug', $slug)
-            ->where('status', 'published')
-            ->with(['author', 'category', 'tags'])
+        $article = Article::published()
+            ->where('slug', $slug)
+            ->with(['author.profile', 'category', 'tags', 'media'])
             ->firstOrFail();
 
         // Increment views
@@ -27,6 +26,7 @@ class ArticleController extends Controller
         ]);
 
         $relatedArticles = Article::published()
+            ->with(['category', 'author', 'media'])
             ->where('category_id', $article->category_id)
             ->where('id', '!=', $article->id)
             ->inRandomOrder()

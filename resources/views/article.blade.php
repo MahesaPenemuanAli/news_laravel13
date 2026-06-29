@@ -3,7 +3,7 @@
     @section('meta_description', $article->meta_description ?? $article->excerpt ?? Str::limit(strip_tags($article->content), 160))
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        
+
         <!-- Breadcrumb -->
         <nav class="flex text-sm text-gray-500 dark:text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -36,7 +36,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 my-8">
             <!-- Main Article Content Area -->
             <article class="lg:col-span-8 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 md:p-10">
-                
+
                 <!-- Article Meta & Title -->
                 <header class="mb-8">
                     @if($article->category)
@@ -44,11 +44,11 @@
                             {{ $article->category->name }}
                         </a>
                     @endif
-                    
+
                     <h1 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-6">
                         {{ $article->title }}
                     </h1>
-                    
+
                     <div class="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 gap-4 md:gap-6 border-b border-gray-100 dark:border-gray-800 pb-6">
                         <div class="flex items-center">
                             <a href="{{ route('author.show', $article->author->id) }}" class="flex items-center group">
@@ -67,16 +67,20 @@
                                 </div>
                             </a>
                         </div>
-                        
+
                         <div class="flex items-center ml-auto md:ml-0 border-l border-gray-200 dark:border-gray-700 pl-4 md:pl-6">
                             <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             {{ $article->published_at ? $article->published_at->format('d M Y, H:i') : $article->created_at->format('d M Y, H:i') }}
                         </div>
-                        
+
                         <div class="flex items-center border-l border-gray-200 dark:border-gray-700 pl-4 md:pl-6">
                             <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             {{ number_format($article->views_count) }} dibaca
                         </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <livewire:bookmark-button :article="$article" />
                     </div>
                 </header>
 
@@ -92,6 +96,8 @@
                     </figure>
                 @endif
 
+                <livewire:article-live-updates :article="$article" />
+
                 <!-- Article Content Typography with In-Content Ad -->
                 <div class="prose prose-lg dark:prose-invert max-w-none prose-blue prose-img:rounded-xl prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-headings:font-bold prose-p:leading-relaxed">
                     @php
@@ -103,7 +109,7 @@
                     @foreach($paragraphs as $index => $paragraph)
                         <!-- Render paragraph -->
                         {!! $paragraph !!}{!! trim($paragraph) ? '</p>' : '' !!}
-                        
+
                         <!-- Inject In-Content Ad Banner di tengah-tengah artikel -->
                         @if($index === $middleIndex && count($paragraphs) >= 3)
                             <div class="not-prose my-10">
@@ -143,7 +149,7 @@
                     </div>
                     <div x-show="copied" x-cloak x-transition class="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">✓ Link berhasil disalin!</div>
                 </div>
-                
+
                 <!-- Tags -->
                 @if($article->tags->isNotEmpty())
                 <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
@@ -157,9 +163,9 @@
                     </div>
                 </div>
                 @endif
-                
+
                 <!-- Author Bio Box -->
-                <a href="{{ route('author.show', $article->author->id) }}" class="mt-10 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 flex items-center border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group block">
+                <a href="{{ route('author.show', $article->author->id) }}" class="mt-10 grid grid-cols-[auto_1fr] items-center bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group">
                     <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex-shrink-0 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-2xl uppercase overflow-hidden mr-4 shadow-sm group-hover:scale-105 transition-transform">
                         @if($article->author->profile && $article->author->profile->photo)
                             <img src="{{ Storage::url($article->author->profile->photo) }}" alt="{{ $article->author->name }}" class="w-full h-full object-cover">
@@ -172,14 +178,16 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{{ $article->author->profile->bio ?? 'Jurnalis profesional di Portal Berita. Menyajikan berita dengan tajam, berimbang, dan tepercaya.' }}</p>
                     </div>
                 </a>
+
+                <livewire:article-comments :article="$article" />
             </article>
-            
+
             <!-- Sticky Sidebar Area -->
             <aside class="lg:col-span-4 space-y-8">
                 <div class="sticky top-24 space-y-8">
                     <!-- Sidebar Ad Banner -->
                     <x-ad-banner position="sidebar" />
-                    
+
                     <!-- Related Articles Widget -->
                     @if($relatedArticles->isNotEmpty())
                     <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
@@ -206,17 +214,14 @@
                     </div>
                     @endif
 
+                    <!-- Jajak Pendapat / Poll Widget -->
+                    <livewire:poll-widget />
+
                     <!-- Subscription Widget -->
                     <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6 text-white">
                         <h3 class="text-lg font-bold mb-2 text-center">📬 Berlangganan</h3>
                         <p class="text-sm text-blue-100 text-center mb-4">Dapatkan berita terbaru langsung ke inbox Anda.</p>
-                        <form class="space-y-3">
-                            <input type="text" placeholder="Nama lengkap" class="w-full rounded-lg border-white/20 bg-white/10 text-white placeholder-blue-200 text-sm focus:ring-white focus:border-white backdrop-blur-sm">
-                            <input type="email" placeholder="Email Anda" class="w-full rounded-lg border-white/20 bg-white/10 text-white placeholder-blue-200 text-sm focus:ring-white focus:border-white backdrop-blur-sm">
-                            <button type="submit" class="w-full bg-white hover:bg-blue-50 text-blue-700 font-bold py-2.5 px-4 rounded-lg transition-colors text-sm">
-                                Langganan
-                            </button>
-                        </form>
+                        <livewire:newsletter-form variant="dark" />
                     </div>
                 </div>
             </aside>

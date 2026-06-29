@@ -2,22 +2,86 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Article;
 use App\Models\Category;
+use App\Models\Poll;
 
 class CategoryController extends Controller
 {
     public function show($slug)
     {
-        $category = Category::where('slug', $slug)
+        $category = Category::query()
+            ->where('slug', $slug)
             ->where('is_active', true)
+            ->with([
+                'parent',
+                'children' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->orderBy('order'),
+            ])
             ->firstOrFail();
 
-        $articles = $category->articles()
+        $baseQuery = $category
+            ->articles()
             ->published()
-            ->latestPublished()
-            ->paginate(12);
+            ->with(['author', 'category', 'media'])
+            ->latestPublished();
 
-        return view('category', compact('category', 'articles'));
+        $heroArticles = (clone $baseQuery)->take(4)->get();
+
+        $articles = (clone $baseQuery)
+            ->when(
+                $heroArticles->isNotEmpty(),
+                fn ($query) => $query->whereNotIn(
+                    'id',
+                    $heroArticles->pluck('id'),
+                ),
+            )
+            ->paginate(9)
+            ->withQueryString();
+
+        $popularArticles = Article::query()
+            ->published()
+            ->with(['category', 'author', 'media'])
+            ->where('category_id', $category->id)
+            ->popular()
+            ->take(5)
+            ->get();
+
+        if ($popularArticles->isEmpty()) {
+            $popularArticles = Article::query()
+                ->published()
+                ->with(['category', 'author', 'media'])
+                ->where('category_id', $category->id)
+                ->latestPublished()
+                ->take(5)
+                ->get();
+        }
+
+        $siblingCategories = Category::query()
+            ->where('is_active', true)
+            ->where('id', '!=', $category->id)
+            ->when(
+                $category->parent_id,
+                fn ($query) => $query->where('parent_id', $category->parent_id),
+                fn ($query) => $query->whereNull('parent_id'),
+            )
+            ->orderBy('order')
+            ->take(8)
+            ->get();
+
+        $activePoll = Poll::active()->with('options')->latest()->first();
+
+        return view(
+            'category',
+            compact(
+                'category',
+                'heroArticles',
+                'articles',
+                'popularArticles',
+                'siblingCategories',
+                'activePoll',
+            ),
+        );
     }
 }

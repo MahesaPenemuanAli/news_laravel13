@@ -9,7 +9,7 @@
             <div class="font-bold uppercase tracking-wider text-xs md:text-sm whitespace-nowrap pr-4 border-r border-red-500 mr-4 z-10 bg-red-600 flex items-center h-full">
                 <span class="animate-pulse mr-2 w-2 h-2 bg-white rounded-full inline-block"></span> Breaking
             </div>
-            
+
             <div class="flex-1 overflow-hidden ticker-wrap">
                 <div class="whitespace-nowrap flex space-x-8 items-center ticker-content">
                     @foreach($breakingNews as $news)
@@ -32,7 +32,7 @@
     @endif
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <!-- Header Ad Banner -->
         <x-ad-banner position="header" />
 
@@ -89,7 +89,7 @@
                     </h2>
                     <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">Lihat Semua &rarr;</a>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse($latestArticles as $article)
                         <x-article-card :article="$article" />
@@ -99,11 +99,11 @@
                         </div>
                     @endforelse
                 </div>
-                
+
                 <!-- In Content Ad Banner -->
                 <x-ad-banner position="in_content" />
             </div>
-            
+
             <!-- Sidebar Area -->
             <div class="lg:col-span-1 space-y-8">
                 <!-- Sidebar Ad Banner -->
@@ -111,26 +111,7 @@
 
                 <!-- Jajak Pendapat / Poll Widget -->
                 @if($activePoll)
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-center flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                        </svg>
-                        Jajak Pendapat
-                    </h3>
-                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 text-center">{{ $activePoll->question }}</p>
-                    <form class="space-y-3" x-data="{ selected: null }">
-                        @foreach($activePoll->options as $option)
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-colors" :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/30': selected === {{ $option->id }} }">
-                                <input type="radio" name="poll_option" value="{{ $option->id }}" class="text-blue-600 focus:ring-blue-500" @click="selected = {{ $option->id }}">
-                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $option->option_text }}</span>
-                            </label>
-                        @endforeach
-                        <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm">
-                            Vote
-                        </button>
-                    </form>
-                </div>
+                    <livewire:poll-widget :poll="$activePoll" />
                 @endif
 
                 <!-- Tag Populer Widget -->
@@ -151,12 +132,7 @@
                 <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-lg p-6 text-white">
                     <h3 class="text-lg font-bold mb-2 text-center">📬 Newsletter</h3>
                     <p class="text-sm text-blue-100 text-center mb-4">Berlangganan untuk info terkini langsung ke inbox Anda.</p>
-                    <form class="flex flex-col gap-3">
-                        <input type="email" placeholder="Email Anda" class="rounded-lg border-white/20 bg-white/10 text-white placeholder-blue-200 text-sm focus:ring-white focus:border-white backdrop-blur-sm">
-                        <button type="submit" class="w-full bg-white hover:bg-blue-50 text-blue-700 font-bold py-2.5 px-4 rounded-lg transition-colors text-sm">
-                            Daftar Sekarang
-                        </button>
-                    </form>
+                    <livewire:newsletter-form variant="dark" button-label="Daftar Sekarang" />
                 </div>
             </div>
         </div>
@@ -173,7 +149,7 @@
                             </h2>
                             <a href="{{ route('category.show', $category->slug ?? '#') }}" class="text-sm font-semibold text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">Lebih banyak &rarr;</a>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             @foreach($category->articles as $article)
                                 <x-article-card :article="$article" />

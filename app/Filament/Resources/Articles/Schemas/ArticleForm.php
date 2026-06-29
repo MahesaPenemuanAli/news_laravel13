@@ -3,11 +3,16 @@
 namespace App\Filament\Resources\Articles\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Set;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ArticleForm
 {
@@ -15,49 +20,49 @@ class ArticleForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Konten Utama')
+                Section::make('Konten Utama')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('title')
+                        TextInput::make('title')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (\Filament\Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                        \Filament\Forms\Components\TextInput::make('slug')
+                            ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                        TextInput::make('slug')
                             ->required()
                             ->unique(ignoreRecord: true),
-                        \Filament\Forms\Components\RichEditor::make('content')
+                        RichEditor::make('content')
                             ->required()
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Media')
+                Section::make('Media')
                     ->schema([
-                        \Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('thumbnail')
-                            ->collection('images')
+                        FileUpload::make('thumbnail')
+                            ->directory('articles')
                             ->image()
                             ->columnSpanFull(),
                     ]),
 
-                \Filament\Forms\Components\Section::make('Kategori & Tags')
+                Section::make('Kategori & Tags')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('category_id')
+                        Select::make('category_id')
                             ->relationship('category', 'name')
                             ->required()
                             ->label('Category'),
-                        \Filament\Forms\Components\Select::make('tags')
+                        Select::make('tags')
                             ->relationship('tags', 'name')
                             ->multiple()
                             ->preload()
                             ->label('Tags'),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Pengaturan & SEO')
+                Section::make('Pengaturan & SEO')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('author_id')
+                        Select::make('author_id')
                             ->relationship('author', 'name')
                             ->required()
                             ->label('Author')
-                            ->default(fn() => auth()->id()),
-                        \Filament\Forms\Components\Select::make('status')
+                            ->default(fn () => auth()->id()),
+                        Select::make('status')
                             ->options([
                                 'draft' => 'Draft',
                                 'review' => 'Review',
@@ -66,14 +71,14 @@ class ArticleForm
                             ])
                             ->default('draft')
                             ->required(),
-                        \Filament\Forms\Components\DateTimePicker::make('published_at'),
-                        \Filament\Forms\Components\Toggle::make('is_breaking_news'),
-                        \Filament\Forms\Components\Toggle::make('is_featured'),
-                        \Filament\Forms\Components\Toggle::make('is_premium'),
-                        \Filament\Forms\Components\Textarea::make('excerpt')
+                        DateTimePicker::make('published_at'),
+                        Toggle::make('is_breaking_news'),
+                        Toggle::make('is_featured'),
+                        Toggle::make('is_premium'),
+                        Textarea::make('excerpt')
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\TextInput::make('meta_title'),
-                        \Filament\Forms\Components\Textarea::make('meta_description')
+                        TextInput::make('meta_title'),
+                        Textarea::make('meta_description')
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);
