@@ -5,25 +5,25 @@
     @section('json_ld')
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
         "itemListElement": [
             {
-                "@type": "ListItem",
+                "@@type": "ListItem",
                 "position": 1,
                 "name": "Beranda",
                 "item": "{{ route('home') }}"
             },
             @if($category->parent)
             {
-                "@type": "ListItem",
+                "@@type": "ListItem",
                 "position": 2,
                 "name": "{{ e($category->parent->name) }}",
                 "item": "{{ route('category.show', $category->parent->slug) }}"
             },
             @endif
             {
-                "@type": "ListItem",
+                "@@type": "ListItem",
                 "position": {{ $category->parent ? 3 : 2 }},
                 "name": "{{ e($category->name) }}",
                 "item": "{{ request()->url() }}"
